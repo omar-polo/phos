@@ -79,7 +79,13 @@ response is fetched, then return the meta and the (decoded) body."
       (let ((resp (parse-response (read-until ssl-stream #\newline))))
         (values resp (read-all-stream ssl-stream))))))
 
-(defun request (url)
+(defgeneric request (url)
+  (:documentation "Perform a request for the URL"))
+
+(defmethod request ((url string))
+  (request (quri:uri url)))
+
+(defmethod request ((url quri:uri))
   (let* ((u (quri:uri url))
          (port (or (quri:uri-port u) 1965))
          (host (quri:uri-host u)))

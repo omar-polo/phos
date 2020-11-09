@@ -1,5 +1,7 @@
 (in-package #:phos/gemtext)
 
+(defparameter *relative-to* nil)
+
 (defclass element ()
   ((text :initarg :text)))
 
@@ -26,8 +28,13 @@
                           :text text)))
 
 (defun make-link (url &optional text)
-  (make-instance 'link :url (quri:uri url)
-                       :text text))
+  (if *relative-to*
+      (let ((u (quri:copy-uri *relative-to*)))
+        (setf (quri:uri-path u) url)
+        (make-instance 'link :url u
+                             :text text))
+      (make-instance 'link :url (quri:uri url)
+                           :text text)))
 
 (defun parse-link (s)
   "Parse a line into link."
@@ -52,9 +59,14 @@
 (defmacro markerp (line)
   `(uiop:string-prefix-p "```" ,line))
 
-(defun parse (in)
-  "Parse gemtext from the stream IN."
+(defun parse (in &optional relative-to)
+  "Parse gemtext from the stream IN.
+
+RELATIVE-TO is the base URL of the page, it is used to transform url
+to absolute urls, if null the transformation does not happen."
   (loop with doc = nil
+        with *relative-to* = (when relative-to
+                               (quri:uri relative-to))
         for line = (read-line in nil)
         unless line
           return (nreverse doc)
@@ -68,14 +80,17 @@
                       when (markerp line)
                         return (make-instance 'verbatim
                                               :alt label
-                                              :text (format nil "~{~A~%~^~}" content))
+                                              :text (format nil "~{~A~%~^~}"
+                                                            (nreverse content)))
                       do (push line content))
                 (parse-line line))
             doc)))
 
-(defun parse-string (str)
+(defun parse-string (str &optional relative-to)
+  "Parse the string STR as gemtext.  See the documentation of `parse'
+for more info."
   (with-input-from-string (s str)
-    (parse s)))
+    (parse s relative-to)))
 
 ;; (unparse
 ;;  (with-open-file (stream #P"~/quicklisp/local-projects/phos/test.gmi")

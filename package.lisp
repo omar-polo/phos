@@ -19,4 +19,4 @@
 
 (defpackage #:phos/ui
   (:documentation "User Interface for phos")
-  (:use #:cl #:ltk))
+  (:use #:cl #:nodgui))
