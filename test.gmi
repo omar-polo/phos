@@ -1,0 +1,18 @@
+# title 1
+## title 2
+### title 3
+
+```
+verbatim text
+```
+
+```python
+print("with alt text")
+```
+
+* a list
+* another item
+
+=> gemini://gemini.omarpolo.com	a capsule
+
+and, finally, even some text!
