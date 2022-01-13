@@ -15,6 +15,9 @@
 (defclass paragraph (element)
   ())
 
+(defclass blockquote (element)
+  ())
+
 (defclass verbatim (element)
   ((alt :initarg :alt)))
 
@@ -40,6 +43,11 @@
   (match (cl-ppcre:split "\\s+" s :limit 2)
     ((list _ text) (make-instance 'item :text text))))
 
+(defun parse-blockquote (s)
+  "Parse a line into a blockquote."
+  (match (cl-ppcre:split "\\s+" s :limit 2)
+    ((list _ text) (make-instance 'blockquote :text text))))
+
 (defun parse-line (s)
   (if (string= s "")
       (make-instance 'paragraph :text s)
@@ -47,6 +55,7 @@
         (#\# (parse-title s))
         (#\= (parse-link s))
         (#\* (parse-item s))
+        (#\> (parse-blockquote s))
         (otherwise (make-instance 'paragraph :text s)))))
 
 (defmacro markerp (line)
@@ -114,3 +123,7 @@
 (defmethod unparse ((v verbatim) stream)
   (with-slots (alt text) v
     (format stream "```~a~%~a```~%" alt text)))
+
+(defmethod unparse ((b blockquote) stream)
+  (with-slots (text) b
+    (format stream "> ~a~%" text)))
