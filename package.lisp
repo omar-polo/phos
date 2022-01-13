@@ -7,7 +7,7 @@
   (:documentation "Gemtext (text/gemini) parsing")
   (:nicknames :gemtext)
   (:use #:cl #:trivia)
-  (:export :element :title :link :item :paragraph :verbatim
+  (:export :element :title :link :item :blockquote :paragraph :verbatim
            :text :url :alt :level
            :parse :parse-string :unparse))
 
