@@ -18,6 +18,9 @@
 (defparameter *link-font* "serif 12"
   "Font for the links.")
 
+(defparameter *blockquote-font* "serif 12 italic"
+  "Font for the quotations.")
+
 (defparameter *paragraph-font* "serif 12"
   "Font for the normal text")
 
@@ -87,6 +90,16 @@
                             :master f
                             :font *item-font*
                             :text (format nil "* ~a" text))))
+      (pack w :side :top :fill :both :expand t))))
+
+(defmethod render ((q gemtext:blockquote) f)
+  (with-slots ((text gemtext:text)) q
+    (let ((w (make-instance 'message
+                            :master f
+                            :font *blockquote-font*
+                            :justify :left
+                            :text text
+                            :width 600)))
       (pack w :side :top :fill :both :expand t))))
 
 (defmethod render ((par gemtext:paragraph) f)
