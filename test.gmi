@@ -15,4 +15,6 @@ print("with alt text")
 
 => gemini://gemini.omarpolo.com	a capsule
 
+> quotes are kind of cool
+
 and, finally, even some text!
