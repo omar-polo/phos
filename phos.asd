@@ -16,3 +16,12 @@
   :description "An experimental GUI Gemini client"
   :depends-on ("phos" "nodgui")
   :components ((:file "ui")))
+
+(asdf:defsystem #:phos/test
+  :description "Test suite for phos."
+  :depends-on ("phos" "clunit2")
+  :serial t
+  :pathname "t"
+  :components ((:file "package")
+               (:file "all-tests")
+               (:file "gemtext-tests")))
