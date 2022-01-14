@@ -3,7 +3,7 @@
 (asdf:defsystem #:phos
   :description "An experimental Gemini client library"
   :author "Omar Polo <op@omarpolo.com>"
-  :license  "ISC"
+  :license "ISC"
   :version "0.0.1"
   :serial t
   :depends-on ("quri" "cl-ppcre" "trivia" "usocket" "cl+ssl" "cl-mime")
