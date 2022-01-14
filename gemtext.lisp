@@ -121,3 +121,25 @@
 (defmethod unparse ((b blockquote) stream)
   (with-slots (text) b
     (format stream "> ~a~%" text)))
+
+(defgeneric line-eq (a b)
+  (:documentation "t if the lines A and B are equals.")
+  (:method-combination and))
+
+(defmethod line-eq and ((a element) (b element))
+  (and (eq (type-of a)
+           (type-of b))
+       (equal (slot-value a 'text)
+              (slot-value b 'text))))
+
+(defmethod line-eq and ((a title) (b title))
+  (eq (slot-value a 'level)
+      (slot-value b 'level)))
+
+(defmethod line-eq and ((a link) (b link))
+  (quri:uri-equal (slot-value a 'url)
+                  (slot-value b 'url)))
+
+(defmethod line-eq and ((a verbatim) (b verbatim))
+  (equal (slot-value a 'alt)
+         (slot-value b 'alt)))
