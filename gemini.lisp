@@ -45,7 +45,7 @@
     (error 'malformed-response :reason "response is longer than 1024 bytes"))
   (setf res (string-trim '(#\return #\newline) res))
   (destructuring-bind (status &optional meta) (cl-ppcre:split "\\s+" res :limit 2)
-    (unless meta
+    (when (and (< (parse-integer status) 40) (not meta))
       (error 'malformed-response :reason "missing meta"))
     (list (parse-status status) meta)))
 
