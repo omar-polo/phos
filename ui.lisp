@@ -1,3 +1,7 @@
+(defpackage #:phos/ui
+  (:documentation "User Interface for phos")
+  (:use #:cl #:nodgui))
+
 (in-package #:phos/ui)
 
 (defparameter *title-1-font* "serif 22"
