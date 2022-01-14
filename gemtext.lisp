@@ -22,42 +22,32 @@
 (defclass verbatim (element)
   ((alt :initarg :alt)))
 
-(defun parse-title (s)
-  "Parse a line into a title."
-  (destructuring-bind (h text)
-      (cl-ppcre:split "\\s+" s :limit 2)
-    (make-instance 'title :level (length h)
-                          :text text)))
-
 (defun make-link (url &optional text)
   (make-instance 'link :url (quri:uri url)
                        :text text))
 
 (defun parse-link (s)
   "Parse a line into link."
-  (match (cl-ppcre:split "\\s+" s :limit 3)
-    ((list _ url)      (make-link url))
-    ((list _ url text) (make-link url text))))
-
-(defun parse-item (s)
-  "Parse a line into an item"
   (match (cl-ppcre:split "\\s+" s :limit 2)
-    ((list _ text) (make-instance 'item :text text))))
-
-(defun parse-blockquote (s)
-  "Parse a line into a blockquote."
-  (match (cl-ppcre:split "\\s+" s :limit 2)
-    ((list _ text) (make-instance 'blockquote :text text))))
+    ((list url)      (make-instance 'link :url (quri:uri url)))
+    ((list url text) (make-instance 'link :url (quri:uri url)
+                                          :text text))))
 
 (defun parse-line (s)
-  (if (string= s "")
-      (make-instance 'paragraph :text s)
-      (case (char s 0)
-        (#\# (parse-title s))
-        (#\= (parse-link s))
-        (#\* (parse-item s))
-        (#\> (parse-blockquote s))
-        (otherwise (make-instance 'paragraph :text s)))))
+  (flet ((strim (s n)
+           (string-trim '(#\Space #\Tab) (subseq s n)))
+         (prefix-p (prfx str)
+           (uiop:string-prefix-p prfx str)))
+    (cond ((prefix-p "###" s) (make-instance 'title :level 3
+                                                    :text (strim s 3)))
+          ((prefix-p "##" s)  (make-instance 'title :level 2
+                                                    :text (strim s 2)))
+          ((prefix-p "#" s)   (make-instance 'title :level 1
+                                                    :text (strim s 1)))
+          ((prefix-p "=>" s)  (parse-link (strim s 2)))
+          ((prefix-p "* " s)  (make-instance 'item :text (strim s 1)))
+          ((prefix-p ">" s)   (make-instance 'blockquote :text (strim s 1)))
+          (t (make-instance 'paragraph :text (strim s 0))))))
 
 (defmacro markerp (line)
   `(uiop:string-prefix-p "```" ,line))
