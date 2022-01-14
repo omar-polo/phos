@@ -73,7 +73,8 @@
                                     (1 *title-1-font*)
                                     (2 *title-2-font*)
                                     (3 *title-3-font*))
-                            :text (format nil "~v{~A~:*~} ~a" level '("#") text))))
+                            :text (format nil "~v{~A~:*~} ~a"
+                                          level '("#") text))))
       (pack w :side :top :fill :both :expand t))))
 
 (defmethod render ((link gemtext:link) f)
@@ -152,7 +153,8 @@
               *window-content*))))
 
 (defun navigate-button-cb ()
-  (navigate-to (quri:uri (string-trim '(#\newline #\space) (text *url-bar*)))))
+  (navigate-to (quri:uri (string-trim '(#\newline #\space)
+                                      (text *url-bar*)))))
 
 (defun main (url)
   (with-nodgui (:title "phos")
@@ -160,9 +162,11 @@
     (let* ((nav      (make-instance 'frame))
            (back-btn (make-instance 'button :text "←"   :master nav))
            (forw-btn (make-instance 'button :text "→"   :master nav))
-           (go-btn   (make-instance 'button :text "GO!" :master nav :command #'navigate-button-cb))
+           (go-btn   (make-instance 'button :text "GO!" :master nav
+                                            :command #'navigate-button-cb))
            (url-bar  (make-instance 'text :height 1     :master nav))
-           (sf       (make-instance 'scrolled-frame :padding 10 :takefocus nil)))
+           (sf       (make-instance 'scrolled-frame :padding 10
+                                                    :takefocus nil)))
       (setf *url-bar* url-bar)
       (setf *window-content* (interior sf))
       (setf (text url-bar) "about:phos")
