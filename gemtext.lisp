@@ -88,11 +88,6 @@
   (with-input-from-string (s str)
     (parse s)))
 
-;; (unparse
-;;  (with-open-file (stream #P"~/quicklisp/local-projects/phos/test.gmi")
-;;    (parse stream))
-;;  *standard-output*)
-
 (defgeneric unparse (obj stream)
   (:documentation "Print a textual representation of OBJ onto STREAM."))
 
