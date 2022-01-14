@@ -1,7 +1,8 @@
 (in-package #:phos/gemtext)
 
 (defclass element ()
-  ((text :initarg :text)))
+  ((text :initarg :text
+         :initform "")))
 
 (defclass title (element)
   ((level :initarg :level)))
