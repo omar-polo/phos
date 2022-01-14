@@ -112,13 +112,11 @@
 
 (defmethod unparse ((item item) stream)
   (with-slots (text) item
-    (format stream "* ~a" text)
-    (terpri)))
+    (format stream "* ~a~%" text)))
 
 (defmethod unparse ((p paragraph) stream)
   (with-slots (text) p
-    (format stream "~a" text)
-    (terpri)))
+    (format stream "~a~%" text)))
 
 (defmethod unparse ((v verbatim) stream)
   (with-slots (alt text) v
