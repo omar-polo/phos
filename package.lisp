@@ -9,7 +9,7 @@
   (:use #:cl #:trivia)
   (:export :element :title :link :item :blockquote :paragraph :verbatim
            :text :url :alt :level
-           :parse :parse-string :unparse))
+           :parse :parse-string :unparse :line-eq))
 
 (defpackage #:phos/gemini
   (:documentation "Gemini (the protocol) implementation")
