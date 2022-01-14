@@ -16,7 +16,3 @@
   (:nicknames :gemini)
   (:use #:cl #:trivia)
   (:export :request))
-
-(defpackage #:phos/ui
-  (:documentation "User Interface for phos")
-  (:use #:cl #:nodgui))
