@@ -87,7 +87,7 @@ response is fetched, then return the meta and the (decoded) body."
       (let ((resp (parse-response (read-until ssl-stream #\newline))))
         (values resp (if (and (= (first resp) 20)
                               (second resp)
-                              (string= (subseq (second resp) 0 4) "text"))
+                              (string= (subseq (second resp) 0 5) "text/"))
                          (read-all-string ssl-stream)
                          (read-all-bytes ssl-stream)))))))
 
