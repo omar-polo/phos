@@ -85,7 +85,7 @@ response is fetched, then return the meta and the (decoded) body."
       (format ssl-stream "~a~c~c" req #\return #\newline)
       (force-output ssl-stream)
       (let ((resp (parse-response (read-until ssl-stream #\newline))))
-        (values resp (if (and (= (first resp) 20)
+        (values resp (if (and (eq (first resp) :success)
                               (second resp)
                               (string= (subseq (second resp) 0 5) "text/"))
                          (read-all-string ssl-stream)
