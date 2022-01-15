@@ -49,13 +49,24 @@
       (error 'malformed-response :reason "missing meta"))
     (list (parse-status status) meta)))
 
-(defun read-all-stream (in)
+(defun read-all-string (in)
   (with-output-to-string (out)
     (loop with buffer = (make-array 1024 :element-type 'character)
           for n-chars = (read-sequence buffer in)
           while (< 0 n-chars)
           do (write-sequence buffer out :start 0
                                         :end n-chars))))
+
+(defun read-all-bytes (in)
+  (let ((data (make-array 0 :element-type '(unsigned-byte 8) :adjustable t :fill-pointer 0)))
+    (loop with buffer = (make-array 1024 :element-type '(unsigned-byte 8))
+          for n-bytes = (read-sequence buffer in)
+          for data-size = (array-dimension data 0)
+          while (< 0 n-bytes)
+          do (adjust-array data (+ data-size n-bytes))
+          do (incf (fill-pointer data) n-bytes)
+          do (replace data buffer :start1 data-size :end2 n-bytes))
+    data))
 
 (defun read-until (in char)
   (with-output-to-string (out)
@@ -77,7 +88,11 @@ response is fetched, then return the meta and the (decoded) body."
       (format ssl-stream "~a~c~c" req #\return #\newline)
       (force-output ssl-stream)
       (let ((resp (parse-response (read-until ssl-stream #\newline))))
-        (values resp (read-all-stream ssl-stream))))))
+        (values resp (if (and (eq (first resp) :success)
+                              (second resp)
+                              (string= (subseq (second resp) 0 5) "text/"))
+                         (read-all-string ssl-stream)
+                         (read-all-bytes ssl-stream)))))))
 
 (defgeneric request (url)
   (:documentation "Perform a request for the URL"))
