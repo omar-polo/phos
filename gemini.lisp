@@ -61,8 +61,11 @@
   (let ((data (make-array 0 :element-type '(unsigned-byte 8) :adjustable t :fill-pointer 0)))
     (loop with buffer = (make-array 1024 :element-type '(unsigned-byte 8))
           for n-bytes = (read-sequence buffer in)
+          for data-size = (array-dimension data 0)
           while (< 0 n-bytes)
-          do (serapeum:vector-conc-extend data buffer n-bytes))
+          do (adjust-array data (+ data-size n-bytes))
+          do (incf (fill-pointer data) n-bytes)
+          do (replace data buffer :start1 data-size :end2 n-bytes))
     data))
 
 (defun read-until (in char)
