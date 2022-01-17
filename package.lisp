@@ -8,6 +8,7 @@
   (:nicknames :gemtext)
   (:use #:cl #:trivia)
   (:export :element :title :link :item :blockquote :paragraph :verbatim
+           :element-p :title-p :link-p :item-p :blockquote-p :paragraph-p :verbatim-p
            :text :url :alt :level
            :parse :parse-string :unparse :line-eq))
 

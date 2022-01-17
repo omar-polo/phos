@@ -1,14 +1,24 @@
 (in-package #:phos/gemtext)
 
 (defclass element ()
-  ((text :initarg :text
-         :initform "")))
+  ((text :initform ""
+         :initarg :text
+         :accessor text
+         :type string)))
 
 (defclass title (element)
-  ((level :initarg :level)))
+  ((level :initarg :level
+          :accessor level
+          :type integer
+          :documentation "The nesting level of the title.
+
+Synonymous to the HTML heading levels, i.e. level 1 is <h1> tag, level 2 is <h2> tag etc.")))
 
 (defclass link (element)
-  ((url :initarg :url)))
+  ((url :initform nil
+        :initarg :url
+        :accessor url
+        :type (or null string))))
 
 (defclass item (element)
   ())
@@ -20,7 +30,24 @@
   ())
 
 (defclass verbatim (element)
-  ((alt :initarg :alt)))
+  ((alt :initform nil
+        :initarg :alt
+        :accessor alt
+        :type (or null string)
+        :documentation "The alternative text for the verbatim block.
+
+Is usually put at the same line as the opening backquotes.
+
+Can be a programming language name or alternative text for, e.g., ASCII art.")))
+
+(defun element-p (element) (typep element 'element))
+(defun title-p (title) (typep title 'title))
+(defun link-p (link) (typep link 'link))
+(defun item-p (item) (typep item 'item))
+(defun paragraph-p (paragraph) (typep paragraph 'paragraph))
+(defun blockquote-p (blockquote) (typep blockquote 'blockquote))
+(defun verbatim-p (verbatim) (typep verbatim 'verbatim))
+
 
 (defun make-link (url &optional text)
   (make-instance 'link :url (quri:uri url)
