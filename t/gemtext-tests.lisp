@@ -22,6 +22,9 @@
                        ("###title" . ,(make-instance 'gemtext:title
                                                      :text "title"
                                                      :level 3))
+                       ;; handle gracefully invalid link lines
+                       ("=>" . ,(make-instance 'gemtext:paragraph
+                                               :text "=>"))
                        ("=>/foo" . ,(make-instance 'gemtext:link
                                                    :url (quri:uri "/foo")))
                        ("=> /foo bar" . ,(make-instance 'gemtext:link

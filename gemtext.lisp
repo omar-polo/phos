@@ -44,7 +44,10 @@
                                                     :text (strim s 2)))
           ((prefix-p "#" s)   (make-instance 'title :level 1
                                                     :text (strim s 1)))
-          ((prefix-p "=>" s)  (parse-link (strim s 2)))
+          ((prefix-p "=>" s)  (let ((s (strim s 2)))
+                                (if (string-equal s "")
+                                    (make-instance 'paragraph :text "=>")
+                                    (parse-link s))))
           ((prefix-p "* " s)  (make-instance 'item :text (strim s 1)))
           ((prefix-p ">" s)   (make-instance 'blockquote :text (strim s 1)))
           (t (make-instance 'paragraph :text (strim s 0))))))
