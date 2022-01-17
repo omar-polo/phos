@@ -15,10 +15,9 @@
 Synonymous to the HTML heading levels, i.e. level 1 is <h1> tag, level 2 is <h2> tag etc.")))
 
 (defclass link (element)
-  ((url :initform nil
-        :initarg :url
+  ((url :initarg :url
         :accessor url
-        :type (or null string))))
+        :type quri:uri)))
 
 (defclass item (element)
   ())
