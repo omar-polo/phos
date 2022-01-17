@@ -92,11 +92,11 @@ Can be a programming language name or alternative text for, e.g., ASCII art.")))
                 (loop with label = (subseq line 3)
                       with content = nil
                       for line = (read-line in nil)
-                      unless line
-                        do (error "non-closed verbatim")
-                      when (markerp line)
+                      when (or (not line)
+                               (markerp line))
                         return (make-instance 'verbatim
-                                              :alt label
+                                              :alt (unless (string-equal label "")
+                                                     label)
                                               :text (format nil "~{~A~%~^~}"
                                                             (nreverse content)))
                       do (push line content))
