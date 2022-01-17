@@ -39,3 +39,26 @@
         for (str . exp) in suite
         do (assert-true (cmp-lines (gemtext:parse-string str)
                                    (list exp)))))
+
+(deftest test-parse-verbatim (gemtext-suite)
+  (let* ((content (format nil "hello~%"))
+         (doc (format nil "```~%~A```" content)))
+    (assert-true (cmp-lines (gemtext:parse-string doc)
+                            (list (make-instance 'gemtext:verbatim
+                                                 :text content))))))
+
+(deftest test-parse-verbatim-with-alt (gemtext-suite)
+  (let* ((alt "some text")
+         (content (format nil "hello~%"))
+         (doc (format nil "```~A~%~A```" alt content)))
+    (assert-true (cmp-lines (gemtext:parse-string doc)
+                            (list (make-instance 'gemtext:verbatim
+                                                 :alt alt
+                                                 :text content))))))
+
+(deftest test-parse-open-verbatim-block (gemtext-suite)
+  (let* ((content (format nil "hello~%"))
+         (doc (format nil "```~%~A" content)))
+    (assert-true (cmp-lines (gemtext:parse-string doc)
+                            (list (make-instance 'gemtext:verbatim
+                                                 :text content))))))
