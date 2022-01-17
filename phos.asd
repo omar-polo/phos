@@ -6,7 +6,7 @@
   :license "ISC"
   :version "0.0.1"
   :serial t
-  :depends-on ("quri" "cl-ppcre" "trivia" "usocket" "cl+ssl" "cl-mime")
+  :depends-on ("quri" "cl-ppcre" "trivia" "usocket" "cl+ssl")
   :components ((:file "package")
                (:file "phos")
                (:file "gemtext")
