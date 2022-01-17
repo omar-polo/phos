@@ -16,4 +16,5 @@
   (:documentation "Gemini (the protocol) implementation")
   (:nicknames :gemini)
   (:use #:cl #:trivia)
-  (:export :request :with-gemini-request :*default-port* :*code-to-keyword*))
+  (:export :*default-port* :*code-to-keyword*
+           :request :with-gemini-request))
