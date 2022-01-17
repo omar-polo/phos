@@ -47,7 +47,7 @@
   (destructuring-bind (status &optional meta) (cl-ppcre:split "\\s+" res :limit 2)
     (when (and (< (parse-integer status) 40) (not meta))
       (error 'malformed-response :reason "missing meta"))
-    (list (parse-status status) meta)))
+    (values (parse-status status) meta)))
 
 (defun read-all-string (in)
   (with-output-to-string (out)
@@ -76,32 +76,38 @@
           do (write-char ch out))
     (write-char char out)))
 
-(defun do-request (host port req)
-  "Perform the request REQ to HOST on PORT, blocking until the
-response is fetched, then return the meta and the (decoded) body."
-  (usocket:with-client-socket (socket stream host port)
-    (let ((ssl-stream (cl+ssl:make-ssl-client-stream
-                       stream :unwrap-stream-p t
-                              :external-format '(:utf8 :eol-style :lf)
-                              :verify nil
-                              :hostname host)))
-      (format ssl-stream "~a~c~c" req #\return #\newline)
-      (force-output ssl-stream)
-      (let ((resp (parse-response (read-until ssl-stream #\newline))))
-        (values resp (if (and (eq (first resp) :success)
-                              (second resp)
-                              (string= (subseq (second resp) 0 5) "text/"))
-                         (read-all-string ssl-stream)
-                         (read-all-bytes ssl-stream)))))))
+(defmacro with-gemini-request (((status meta stream) url) &body body)
+  "Expose a stream (STREAM) with Gemini response contents, available in BODY.
+
+STATUS and META are bound to the status code (as keyword from
+`*code-to-keyword*') and meta info (as optional/nullable string.)
+
+URL should be a well-formed string/`quri:uri' URL."
+  (let* ((socket-var (gensym "SOCKET"))
+         (socket-stream-var (gensym "SOCKET-STREAM"))
+         (host-var (gensym "HOST"))
+         (port-var (gensym "PORT"))
+         (url-var (gensym "URL")))
+    `(let* ((,url-var (quri:uri ,url))
+            (,host-var (quri:uri-host ,url-var))
+            (,port-var (or (quri:uri-port ,url-var) phos/gemini:*default-port*)))
+       (usocket:with-client-socket (,socket-var ,socket-stream-var ,host-var ,port-var)
+         (let ((,stream (cl+ssl:make-ssl-client-stream
+                         ,socket-stream-var :unwrap-stream-p t
+                         :external-format '(:utf8 :eol-style :lf)
+                         :verify nil
+                         :hostname ,host-var)))
+           (format ,stream "~a~c~c" (quri:render-uri ,url-var) #\return #\newline)
+           (force-output ,stream)
+           (multiple-value-bind (,status ,meta)
+               (parse-response (read-until ,stream #\newline))
+             ,@body))))))
 
 (defgeneric request (url)
-  (:documentation "Perform a request for the URL"))
-
-(defmethod request ((url string))
-  (request (quri:uri url)))
-
-(defmethod request ((url quri:uri))
-  (let* ((u (quri:uri url))
-         (port (or (quri:uri-port u) 1965))
-         (host (quri:uri-host u)))
-    (do-request host port url)))
+  (:method (url)
+    (with-gemini-request ((status meta stream) url)
+      (values status meta (if (and (eq status :success)
+                                   meta (string= (subseq meta 0 5) "text/"))
+                              (read-all-string stream)
+                              (read-all-bytes stream)))))
+  (:documentation "Perform a request for the URL."))
