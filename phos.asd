@@ -10,7 +10,8 @@
   :components ((:file "package")
                (:file "phos")
                (:file "gemtext")
-               (:file "gemini")))
+               (:file "gemini"))
+  :in-order-to ((test-op (test-op :phos/test))))
 
 (asdf:defsystem #:phos/nodgui
   :description "An experimental GUI Gemini client"
@@ -24,4 +25,6 @@
   :pathname "t"
   :components ((:file "package")
                (:file "all-tests")
-               (:file "gemtext-tests")))
+               (:file "gemtext-tests"))
+  :perform (test-op (op system)
+                    (funcall (read-from-string "all-tests:run-all-tests"))))
