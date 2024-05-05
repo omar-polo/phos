@@ -81,27 +81,61 @@ Can be a programming language name or alternative text for, e.g., ASCII art.")))
 (defmacro markerp (line)
   `(uiop:string-prefix-p "```" ,line))
 
-(defun parse (in)
+(defun join-lines (doc)
+  (labels ((blankp (string)
+             (uiop:emptyp
+              (string-trim '(#\Space #\Tab) string)))
+           (join (rest)
+             (let ((line (first rest)))
+               (cond
+                 ((null line)
+                  nil)
+                 ((and (or (paragraph-p line)
+                           (blockquote-p line))
+                       (not (blankp (text line))))
+                  (let ((next-lines
+                          (loop for next in (rest rest)
+                                while (and (subtypep (type-of line) (type-of next))
+                                           (not (uiop:emptyp
+                                                 (string-trim '(#\Space #\Tab) (text next)))))
+                                collect next)))
+                    (if next-lines
+                        (cons (make-instance (type-of line)
+                                             :text (reduce (lambda (prev next)
+                                                             (uiop:strcat prev " " next))
+                                                           next-lines
+                                                           :initial-value (text line)
+                                                           :key #'text))
+                              (join (nthcdr (1+ (length next-lines)) rest)))
+                        (cons line (join (cdr rest))))))
+                 (t
+                  (cons line (join (cdr rest))))))))
+    (join doc)))
+
+(defun parse (in &key join-lines)
   "Parse gemtext from the stream IN."
-  (loop with doc = nil
-        for line = (read-line in nil)
-        unless line
-          return (nreverse doc)
-        do (push
-            (if (markerp line)
-                (loop with label = (subseq line 3)
-                      with content = nil
-                      for line = (read-line in nil)
-                      when (or (not line)
-                               (markerp line))
-                        return (make-instance 'verbatim
-                                              :alt (unless (string-equal label "")
-                                                     label)
-                                              :text (format nil "~{~A~%~^~}"
-                                                            (nreverse content)))
-                      do (push line content))
-                (parse-line line))
-            doc)))
+  (let ((doc (loop with doc = nil
+                   for line = (read-line in nil)
+                   unless line
+                     return (nreverse doc)
+                   do (push
+                       (if (markerp line)
+                           (loop with label = (subseq line 3)
+                                 with content = nil
+                                 for line = (read-line in nil)
+                                 when (or (not line)
+                                          (markerp line))
+                                   return (make-instance 'verbatim
+                                                         :alt (unless (string-equal label "")
+                                                                label)
+                                                         :text (format nil "~{~A~%~^~}"
+                                                                       (nreverse content)))
+                                 do (push line content))
+                           (parse-line line))
+                       doc))))
+    (if join-lines
+        (join-lines doc)
+        doc)))
 
 (defun parse-string (str)
   "Parse the string STR as gemtext."
