@@ -62,3 +62,11 @@
     (assert-true (cmp-lines (gemtext:parse-string doc)
                             (list (make-instance 'gemtext:verbatim
                                                  :text content))))))
+
+(deftest test-parse-joining-lines (gemtext-suite)
+  (let* ((content (format nil "hello~%world~%~%some~%more~%"))
+         (doc (list (make-instance 'gemtext:paragraph :text "hello world")
+                    (make-instance 'gemtext:paragraph :text "")
+                    (make-instance 'gemtext:paragraph :text "some more"))))
+    (assert-true (cmp-lines (gemtext:parse-string content :join-lines t)
+                            doc))))
