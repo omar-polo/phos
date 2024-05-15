@@ -137,10 +137,10 @@ Can be a programming language name or alternative text for, e.g., ASCII art.")))
         (join-lines doc)
         doc)))
 
-(defun parse-string (str)
+(defun parse-string (str &key join-lines)
   "Parse the string STR as gemtext."
   (with-input-from-string (s str)
-    (parse s)))
+    (parse s :join-lines join-lines)))
 
 (defgeneric unparse (obj stream)
   (:documentation "Print a textual representation of OBJ onto STREAM."))
