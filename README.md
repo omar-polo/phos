@@ -30,8 +30,8 @@ etc...
 
 The main function is `with-gemini-request` which exposes a stream with
 the gemini content and can be used to handle replies by streaming.  The
-helper `request` insteads loads all the reply in memory and returns it
-as a string if it was of a `text/*` MIME type or binary otherwise.
+helper `request` instead loads all the reply in memory and returns it as
+a string if it was of a `text/*` MIME type or binary otherwise.
 
 
 ## License
