@@ -36,5 +36,7 @@ a string if it was of a `text/*` MIME type or binary otherwise.
 
 ## License
 
-ISC
+This project is licensed under either the terms of the ISC or AGPL-3.0
+licenses, at the user's discretion.
 
+See LICENSE-ISC or LICENSE-AGPL to see the terms.
